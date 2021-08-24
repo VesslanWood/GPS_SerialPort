@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:keepScreenOn="true"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/EditTextReception"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:gravity="top"
+        android:hint="Reception"
+        android:isScrollContainer="true"/>
+   
+
+	<CheckBox
+        android:id="@+id/hex"
+        android:text="@string/Hex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <EditText
+        android:id="@+id/EditTextEmission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Emission"
+        android:lines="1" >
+    </EditText>
+
+  <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <Button
+        android:id="@+id/Send"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        />
+    <Button
+        android:id="@+id/Clear"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        />
+    </LinearLayout>
+</LinearLayout>
