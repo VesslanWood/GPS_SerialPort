@@ -27,18 +27,25 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
+import android_serialport_api.utils.ByteConvert;
+import android_serialport_api.utils.GPSRespUtil;
 import android_serialport_api.utils.wwcutils;
+
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ConsoleActivity extends SerialPortActivity implements CompoundButton.OnCheckedChangeListener {
 
-    private static String TAG =ConsoleActivity.class.getName();
+    private static String TAG = ConsoleActivity.class.getName();
 
     TextView mReception;
     EditText Emission;
     Button Send, Clear;
     CheckBox hexSend;
     boolean isHex;
+    private StringBuilder receiveSb=new StringBuilder();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +87,7 @@ public class ConsoleActivity extends SerialPortActivity implements CompoundButto
                             mOutputStream.write(strByte);
                             mOutputStream.write('\n');
                             mOutputStream.flush();
-                            wwcutils.e(TAG, Thread.currentThread().getName()+",发送结束1");
+                            wwcutils.e(TAG, Thread.currentThread().getName() + ",发送结束1:" + ByteConvert.bytesToHex(strByte));
 
                         } else {
                             //mOutputStream.write(Emission.getText().toString().getBytes());
@@ -94,7 +101,7 @@ public class ConsoleActivity extends SerialPortActivity implements CompoundButto
                             mOutputStream.write(strByte);
                             mOutputStream.write('\n');
                             mOutputStream.flush();
-                            wwcutils.e(TAG, Thread.currentThread().getName()+",发送结束2");
+                            wwcutils.e(TAG, Thread.currentThread().getName() + ",发送结束2:" + ByteConvert.bytesToHex(strByte));
                         }
 
                         //mOutputStream.write('\n');
@@ -116,15 +123,12 @@ public class ConsoleActivity extends SerialPortActivity implements CompoundButto
 
     @Override
     protected void onDataReceived(final byte[] buffer, final int size) {
-        wwcutils.e(TAG, Thread.currentThread().getName()+",BYTE_LENGTH:" + buffer.length);
         String s = new String(buffer, 0, size);
-        String[] strs = s.split("\n");
-        wwcutils.e(TAG, Thread.currentThread().getName()+",RE::" + s);
-        wwcutils.e(TAG, "---------------------------");
-        for (String str : strs) {
-            wwcutils.e(TAG, Thread.currentThread().getName()+"PS::" + str);
+        receiveSb.append(s);
+        if(GPSRespUtil.isFullResp(receiveSb.toString())){
+            wwcutils.e(TAG, Thread.currentThread().getName() + ",收←◆" + s);
+            receiveSb.delete(0,receiveSb.length());
         }
-
 
         runOnUiThread(new Runnable() {
             public void run() {

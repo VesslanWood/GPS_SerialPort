@@ -11,29 +11,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by Administrator on 2018/12/3 0003.
+ * Created by 张洪兴 on 2018/12/3 0003.
  */
 
 public class wwcutils {
-
-    /**
-     * 数组转换成十六进制字符串
-     *
-     * @param byte[]
-     * @return HexString
-     */
-    public static final String bytesToHexString(byte[] bArray) {
-        StringBuffer sb = new StringBuffer(bArray.length);
-        String sTemp;
-        for (int i = 0; i < bArray.length; i++) {
-            sTemp = Integer.toHexString(0xFF & bArray[i]);
-            if (sTemp.length() < 2)
-                sb.append(0);
-            sb.append(sTemp.toUpperCase());
-        }
-        return sb.toString();
-    }
-
     private static SimpleDateFormat myLogSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");// 日志的输出格式
     private static SimpleDateFormat logfile = new SimpleDateFormat("yyyy-MM-dd HH");// 日志文件格式
     private static String MYLOGFILEName = "Log.txt";

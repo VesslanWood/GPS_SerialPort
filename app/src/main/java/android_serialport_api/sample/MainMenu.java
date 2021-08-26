@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import android_serialport_api.utils.GPSRespUtil;
 import android_serialport_api.utils.wwcutils;
 
 public class MainMenu extends Activity {
@@ -89,5 +90,7 @@ public class MainMenu extends Activity {
                 MainMenu.this.finish();
             }
         });
+
+        GPSRespUtil.isFullResp("#BESTPOSA,COM3,0,94.0,FINESTEERING,2171,461081.000,00000000,0001,757;SOL_COMPUTED,NARROW_INT,39.86446389971,116.42793045789,44.0952,-9.5919,WGS84,0.0576,0.0527,0.0723,\"0\",1.000,0.020,27,25,25,25,00,00,30,33*ccf68845");
     }
 }

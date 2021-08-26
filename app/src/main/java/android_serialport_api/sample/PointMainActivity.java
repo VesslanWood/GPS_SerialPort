@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import android_serialport_api.utils.GPSRespUtil;
 import android_serialport_api.utils.TimeUtil;
 import android_serialport_api.utils.wwcutils;
 
@@ -178,13 +179,18 @@ public class PointMainActivity extends SerialPortActivity {
         });
     }
 
+    private final StringBuilder receiveSb = new StringBuilder();
+
     @Override
     protected void onDataReceived(byte[] buffer, int size) {
-        wwcutils.e(TAG, Thread.currentThread().getName() + ",串口返回,字节长度:" + buffer.length);
-        //wwcutils.e(TAG,Thread.currentThread().getName()+",RECEIVE:"+ wwcutils.bytesToHexString(buffer));
         String s = new String(buffer, 0, size);
-        wwcutils.d(TAG, Thread.currentThread().getName() + ",串口返回,数据:" + s);
-        parseGpsStr(s);
+        receiveSb.append(s);
+        if (GPSRespUtil.isFullResp(receiveSb.toString())) {
+            wwcutils.e(TAG, Thread.currentThread().getName() + ",收←◆" + receiveSb.toString());
+            parseGpsStr(receiveSb.toString());
+            receiveSb.delete(0, receiveSb.length());
+        }
+
     }
 
     @Override
@@ -228,12 +234,20 @@ public class PointMainActivity extends SerialPortActivity {
             if (str.startsWith("$GPGGA")) {
                 try {
                     String[] strtemp1 = str.split(",");
-                    gpsInfo.ggaType = strtemp1[6];
+                    if (strtemp1.length >= 7) {
+                        gpsInfo.ggaType = strtemp1[6];
+                    }
+
                     if (TextUtils.isEmpty(gpsInfo.ggaType)) {
                         gpsInfo.ggaType = "0";
                     }
-                    gpsInfo.latitude = strtemp1[2].equals("") ? 0 : Double.parseDouble(parseLat(strtemp1[2], strtemp1[3]));
-                    gpsInfo.longitude = strtemp1[4].equals("") ? 0 : Double.parseDouble(parseLon(strtemp1[4], strtemp1[5]));
+                    if (strtemp1.length >= 6) {
+                        gpsInfo.latitude = strtemp1[2].equals("") ? 0 : Double.parseDouble(parseLat(strtemp1[2], strtemp1[3]));
+                        gpsInfo.longitude = strtemp1[4].equals("") ? 0 : Double.parseDouble(parseLon(strtemp1[4], strtemp1[5]));
+                    } else {
+                        gpsInfo.latitude = 0;
+                        gpsInfo.longitude = 0;
+                    }
                     ggaGet = true;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -270,9 +284,9 @@ public class PointMainActivity extends SerialPortActivity {
             } else if (gpsInfo.ggaType.equals("5")) {
                 pointGps.add(gpsInfo);
             }
-            wwcutils.e(TAG, Thread.currentThread().getName() + ",解析的数据,startPoint = " + startPoint + ", gga = " + gga + ", pointGps = " + pointGps);
+            //wwcutils.e(TAG, Thread.currentThread().getName() + ",解析的数据,startPoint = " + startPoint + ", gga = " + gga + ", pointGps = " + pointGps);
         }
-        wwcutils.e(TAG, Thread.currentThread().getName() + ",解析的数据,startPoint = " + startPoint + ", gpsInfo = " + gpsInfo);
+        //wwcutils.e(TAG, Thread.currentThread().getName() + ",解析的数据,startPoint = " + startPoint + ", gpsInfo = " + gpsInfo);
         currentGps = gpsInfo;
         runOnUiThread(new Runnable() {
             @Override
