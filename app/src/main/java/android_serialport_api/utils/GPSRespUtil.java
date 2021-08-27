@@ -45,38 +45,6 @@ public class GPSRespUtil implements Serializable {
             return false;
         }
         return true;
-        //String valueData = "";
-//        if (data.contains("#")) {
-//            valueData = data.substring(data.indexOf("#") + 1, data.indexOf("*"));
-//        }
-//        if (data.contains("$")) {
-//            valueData = data.substring(data.indexOf("$") + 1, data.indexOf("*"));
-//        }
-//
-//        byte temp =0;
-//        for (int i = 0; i < valueData.length(); i++) {
-//
-//            temp ^= valueData.charAt(i);
-//
-//        }
-//
-////        CRC32 crc32 = new CRC32();
-////        crc32.update(valueData.getBytes());
-////        long xorValue = crc32.getValue();
-////
-////        byte[] xorBytes = ByteConvert.long2ByteArray(xorValue);
-////        byte xorByte = ByteConvert.xor(xorBytes);
-//        // xorValue = CalcBlockCRC32(valueData.length(), valueData);
-//        //String xorCal = Long.toHexString(xorValue);
-//        //byte xorByte = ByteConvert.xor(ByteConvert.hexStringToBytes(valueData));
-//        String xorHex = ByteConvert.bytesToHex(new byte[]{temp});
-//        String end = data.substring(data.indexOf("*") + 1);
-//
-//        LogUtil.d("GPSRespUtil", xorHex);
-//        if (xorHex.equals(ByteConvert.hexStringToBytes(end))) {
-//            return true;
-//        }
-//        return false;
     }
 
     public static boolean xorString(String origin) {
