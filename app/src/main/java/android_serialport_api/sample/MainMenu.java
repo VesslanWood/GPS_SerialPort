@@ -96,6 +96,9 @@ public class MainMenu extends Activity {
                 MainMenu.this.finish();
             }
         });
+
+        String[] strtemp1 = "$GPRMC,094155.50,A,3959.9923624,N,11627.2951788,E,0.141,167.7,270821,0.0,E,A*3D".split(",");
+       String bbb = strtemp1[7];
     }
 
 

@@ -275,8 +275,9 @@ public class PointMainActivity extends SerialPortActivity {
                 String[] strtemp1 = str.split(",");
                 gpsInfo.gpsStatus = strtemp1[2];
                 gpsInfo.speed = strtemp1[7].equals("") ? 0 : Double.parseDouble(strtemp1[7]) * 1.852;
-                gpsInfo.latitude = strtemp1[3].equals("") ? 0 : Double.parseDouble(strtemp1[3]);
-                gpsInfo.longitude = strtemp1[5].equals("") ? 0 : Double.parseDouble(strtemp1[5]);
+                gpsInfo.latitude = strtemp1[3].equals("") ? 0 : Double.parseDouble(parseLat(strtemp1[3], strtemp1[4]));
+                gpsInfo.longitude = strtemp1[5].equals("") ? 0 : Double.parseDouble(parseLon(strtemp1[5], strtemp1[6]));
+                ggaGet = true;
             }
         }
         final long now = System.currentTimeMillis();
