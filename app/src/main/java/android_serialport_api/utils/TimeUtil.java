@@ -128,9 +128,9 @@ public class TimeUtil {
             calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
         }
         String selectStr = date2Str(new Date(calendar.getTimeInMillis()), DEFAULT_TIME_FORMAT);
-        wwcutils.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + selectStr);
+        LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + selectStr);
         long clockTime = SystemClock.elapsedRealtime();
-        wwcutils.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + clockTime + ",set clock" + TimeUtil.long2Str(calendar.getTimeInMillis(), TimeUtil.DEFAULT_TIME_FORMAT_MS) + ",current:" + TimeUtil.long2Str(systemTime, TimeUtil.DEFAULT_TIME_FORMAT_MS));
+        LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + clockTime + ",set clock" + TimeUtil.long2Str(calendar.getTimeInMillis(), TimeUtil.DEFAULT_TIME_FORMAT_MS) + ",current:" + TimeUtil.long2Str(systemTime, TimeUtil.DEFAULT_TIME_FORMAT_MS));
         /**RTC_SHUTDOWN_WAKEUP 使用标识，系统进入深度休眠还唤醒*/
         mg.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, p);
     }
@@ -157,12 +157,12 @@ public class TimeUtil {
         /**如果超过今天的{$hour}点，那么定时器就设置为明天hour点*/
         if (systemTime > selectTime) {
             calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
-            wwcutils.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + TimeUtil.long2Str(selectTime, TimeUtil.DEFAULT_TIME_FORMAT_MS_1) + ",currentTime:" + TimeUtil.long2Str(systemTime, TimeUtil.DEFAULT_TIME_FORMAT_MS_1));
+            LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + TimeUtil.long2Str(selectTime, TimeUtil.DEFAULT_TIME_FORMAT_MS_1) + ",currentTime:" + TimeUtil.long2Str(systemTime, TimeUtil.DEFAULT_TIME_FORMAT_MS_1));
         }
         String selectStr = date2Str(new Date(calendar.getTimeInMillis()), DEFAULT_TIME_FORMAT);
-        wwcutils.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + selectStr);
+        LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + selectStr);
         long clockTime = SystemClock.elapsedRealtime();
-        wwcutils.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + clockTime + ",set clock" + TimeUtil.long2Str(calendar.getTimeInMillis(), TimeUtil.DEFAULT_TIME_FORMAT_MS) + ",current:" + TimeUtil.long2Str(systemTime, TimeUtil.DEFAULT_TIME_FORMAT_MS));
+        LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr clock : " + clockTime + ",set clock" + TimeUtil.long2Str(calendar.getTimeInMillis(), TimeUtil.DEFAULT_TIME_FORMAT_MS) + ",current:" + TimeUtil.long2Str(systemTime, TimeUtil.DEFAULT_TIME_FORMAT_MS));
         /**RTC_SHUTDOWN_WAKEUP 使用标识，系统进入深度休眠还唤醒*/
         mg.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, p);
         return true;

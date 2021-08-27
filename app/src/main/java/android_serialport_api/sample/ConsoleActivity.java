@@ -27,14 +27,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import android_serialport_api.utils.ByteConvert;
 import android_serialport_api.utils.GPSRespUtil;
-import android_serialport_api.utils.wwcutils;
-
-import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import android_serialport_api.utils.LogUtil;
+import android_serialport_api.utils.StringUtil;
 
 public class ConsoleActivity extends SerialPortActivity implements CompoundButton.OnCheckedChangeListener {
 
@@ -45,7 +42,7 @@ public class ConsoleActivity extends SerialPortActivity implements CompoundButto
     Button Send, Clear;
     CheckBox hexSend;
     boolean isHex;
-    private StringBuilder receiveSb=new StringBuilder();
+    private StringBuilder receiveSb = new StringBuilder();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +84,7 @@ public class ConsoleActivity extends SerialPortActivity implements CompoundButto
                             mOutputStream.write(strByte);
                             mOutputStream.write('\n');
                             mOutputStream.flush();
-                            wwcutils.e(TAG, Thread.currentThread().getName() + ",发送结束1:" + ByteConvert.bytesToHex(strByte));
+                            LogUtil.e("", ",发送结束1:" + ByteConvert.bytesToHex(strByte));
 
                         } else {
                             //mOutputStream.write(Emission.getText().toString().getBytes());
@@ -101,7 +98,7 @@ public class ConsoleActivity extends SerialPortActivity implements CompoundButto
                             mOutputStream.write(strByte);
                             mOutputStream.write('\n');
                             mOutputStream.flush();
-                            wwcutils.e(TAG, Thread.currentThread().getName() + ",发送结束2:" + ByteConvert.bytesToHex(strByte));
+                            LogUtil.e("", ",发送结束2:" + ByteConvert.bytesToHex(strByte));
                         }
 
                         //mOutputStream.write('\n');
@@ -122,25 +119,43 @@ public class ConsoleActivity extends SerialPortActivity implements CompoundButto
     }
 
     @Override
-    protected void onDataReceived(final byte[] buffer, final int size) {
-        String s = new String(buffer, 0, size);
-        receiveSb.append(s);
-        if(GPSRespUtil.isFullResp(receiveSb.toString())){
-            wwcutils.e(TAG, Thread.currentThread().getName() + ",收←◆" + s);
-            receiveSb.delete(0,receiveSb.length());
-        }
-
-        runOnUiThread(new Runnable() {
-            public void run() {
-                if (mReception != null) {
-                    if (isHex) {
-                        mReception.append(toHexString(buffer, size));
-                    } else {
-                        mReception.append(new String(buffer, 0, size));
+    protected synchronized void onDataReceived(final byte[] buffer, final int size) {
+        try {
+            String[] s = new String(buffer, 0, size).split("\n");
+            if (s.length <= 0) {
+                return;
+            }
+            receiveSb.append(s[0]);
+            if (GPSRespUtil.isFullResp(receiveSb.toString())) {
+                String withOutFit = StringUtil.replaceBlank(receiveSb.toString());
+                if (withOutFit.substring(withOutFit.indexOf("*") + 1).length() < 2) {
+                    return;
+                }
+                if (withOutFit.contains("BESTPOSA")) {
+                    LogUtil.d("", ",收←◆" + withOutFit);
+                } else {
+                    LogUtil.d("", ",收←◆" + withOutFit + ",效验结果:" + GPSRespUtil.xorString(withOutFit));
+                }
+                receiveSb.delete(0, receiveSb.length());
+            }
+            if (s.length > 1) {
+                receiveSb.append(s[1]);
+            }
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    if (mReception != null) {
+                        if (isHex) {
+                            mReception.append(toHexString(buffer, size));
+                        } else {
+                            mReception.append(new String(buffer, 0, size));
+                        }
                     }
                 }
-            }
-        });
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.e(TAG, "onDataReceived Exception:" + Log.getStackTraceString(e));
+        }
     }
 
     @Override

@@ -26,16 +26,21 @@ import android.util.Log;
 
 import android_serialport_api.SerialPort;
 import android_serialport_api.SerialPortFinder;
+import android_serialport_api.utils.CrashHandler;
+import android_serialport_api.utils.LogUtil;
 
 public class MyApplication extends android.app.Application {
 
 	public SerialPortFinder mSerialPortFinder = new SerialPortFinder();
 	private SerialPort mSerialPort = null;
+	private static String TAG =MyApplication.class.getName();
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		Log.e("wwwww","APPlication");
+		CrashHandler.getInstance().init(this);
+		//wwcutils.d(TAG, "当前的版本:"+BuildConfig.VERSION_NAME);
 	}
 
 	public SerialPort getSerialPort() throws SecurityException, IOException, InvalidParameterException {

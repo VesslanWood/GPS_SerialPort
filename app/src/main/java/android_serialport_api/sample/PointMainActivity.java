@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TimeUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,15 +16,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import android_serialport_api.utils.GPSRespUtil;
+import android_serialport_api.utils.StringUtil;
 import android_serialport_api.utils.TimeUtil;
-import android_serialport_api.utils.wwcutils;
+import android_serialport_api.utils.LogUtil;
 
 public class PointMainActivity extends SerialPortActivity {
     ProgressDialog progressDialog;
@@ -60,7 +58,7 @@ public class PointMainActivity extends SerialPortActivity {
                         while (startPoint && now - start < 10 * 1000) {
 
                             Log.d("www", ">>>" + now + ">>>" + start);
-                            wwcutils.d(TAG, Thread.currentThread().getName() + ",>>>" + now + ">>>" + start);
+                            LogUtil.d(TAG, Thread.currentThread().getName() + ",>>>" + now + ">>>" + start);
                             try {
                                 Thread.sleep(10);
                             } catch (InterruptedException e) {
@@ -76,7 +74,7 @@ public class PointMainActivity extends SerialPortActivity {
 //                            }
                         }
                         int count = pointGps.size();
-                        wwcutils.e(TAG, Thread.currentThread().getName() + ",pointGps count =" + count + ",gga = " + gga);
+                        LogUtil.e(TAG, Thread.currentThread().getName() + ",pointGps count =" + count + ",gga = " + gga);
                         if (count > 0 && ("4".equals(gga) || "5".equals(gga))) {
                             final String txtGga = gga;
                             double lat = 0;
@@ -92,21 +90,21 @@ public class PointMainActivity extends SerialPortActivity {
                                 lon = lonSum / count;
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                wwcutils.e(TAG, e.getStackTrace());
+                                LogUtil.e(TAG, e.getStackTrace());
                             }
 
                             File file = new File(Environment
                                     .getExternalStorageDirectory().getAbsolutePath() + "/GPSPoint/");
-                            wwcutils.e("pm", "file ===" + file.exists() + "===" + Environment
+                            LogUtil.e("pm", "file ===" + file.exists() + "===" + Environment
                                     .getExternalStorageDirectory().getAbsolutePath() + "/GPSPoint");
                             if (!file.exists()) {
 
                                 boolean b = file.mkdirs();
-                                wwcutils.e("pm", ">>>" + b);
+                                LogUtil.e("pm", ">>>" + b);
                             }
                             File pointFile = new File(Environment
                                     .getExternalStorageDirectory().getAbsolutePath() + "/GPSPoint/" + "point.txt");
-                            wwcutils.e("pm", "pointFile ===" + pointFile.exists());
+                            LogUtil.e("pm", "pointFile ===" + pointFile.exists());
                             if (!pointFile.exists()) {
                                 try {
                                     pointFile.createNewFile();
@@ -137,7 +135,7 @@ public class PointMainActivity extends SerialPortActivity {
                                         EditText editText = findViewById(R.id.editText);
                                         editText.setText("");
                                     } catch (Exception e) {
-                                        wwcutils.e(TAG, e.getStackTrace());
+                                        LogUtil.e(TAG, e.getStackTrace());
                                     }
                                 }
                             });
@@ -182,15 +180,34 @@ public class PointMainActivity extends SerialPortActivity {
     private final StringBuilder receiveSb = new StringBuilder();
 
     @Override
-    protected void onDataReceived(byte[] buffer, int size) {
-        String s = new String(buffer, 0, size);
-        receiveSb.append(s);
-        if (GPSRespUtil.isFullResp(receiveSb.toString())) {
-            wwcutils.e(TAG, Thread.currentThread().getName() + ",收←◆" + receiveSb.toString());
-            parseGpsStr(receiveSb.toString());
-            receiveSb.delete(0, receiveSb.length());
-        }
+    protected synchronized void onDataReceived(byte[] buffer, int size) {
+        try {
+            String[] s = new String(buffer, 0, size).split("\n");
+            if (s.length <= 0) {
+                return;
+            }
+            receiveSb.append(s[0]);
+            if (GPSRespUtil.isFullResp(receiveSb.toString())) {
+                String withOutFit = StringUtil.replaceBlank(receiveSb.toString());
+                if (withOutFit.substring(withOutFit.indexOf("*") + 1).length() < 2) {
+                    return;
+                }
+                if (withOutFit.contains("BESTPOSA")) {
+                    LogUtil.d("", ",收←◆" + withOutFit);
+                } else {
+                    LogUtil.d("", ",收←◆" + withOutFit + ",效验结果:" + GPSRespUtil.xorString(withOutFit));
+                }
+                parseGpsStr(withOutFit);
+                receiveSb.delete(0, receiveSb.length());
+            }
+            if (s.length > 1) {
+                receiveSb.append(s[1]);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.e(TAG, "onDataReceived Exception:" + Log.getStackTraceString(e));
 
+        }
     }
 
     @Override
@@ -251,15 +268,15 @@ public class PointMainActivity extends SerialPortActivity {
                     ggaGet = true;
                 } catch (Exception e) {
                     e.printStackTrace();
-                    wwcutils.e(TAG, Thread.currentThread().getName() + ",解析数据，parseGpsStr,Exception:" + Log.getStackTraceString(e));
+                    LogUtil.e(TAG, Thread.currentThread().getName() + ",解析数据，parseGpsStr,Exception:" + Log.getStackTraceString(e));
                     ggaGet = false;
                 }
-//            } 、else if (str.startsWith("$GPRMC")) {
-//                String[] strtemp1 = str.split(",");
-//                gpsInfo.gpsStatus = strtemp1[2];
-//                gpsInfo.speed = strtemp1[7].equals("") ? 0 : Double.parseDouble(strtemp1[7]) * 1.852;
-//                gpsInfo.latitude = strtemp1[3].equals("") ? 0 : GPSTransforming(strtemp1[3]);
-//                gpsInfo.longitude = strtemp1[5].equals("") ? 0 : GPSTransforming(strtemp1[5]);
+            } else if (str.startsWith("$GPRMC")) {
+                String[] strtemp1 = str.split(",");
+                gpsInfo.gpsStatus = strtemp1[2];
+                gpsInfo.speed = strtemp1[7].equals("") ? 0 : Double.parseDouble(strtemp1[7]) * 1.852;
+                gpsInfo.latitude = strtemp1[3].equals("") ? 0 : Double.parseDouble(strtemp1[3]);
+                gpsInfo.longitude = strtemp1[5].equals("") ? 0 : Double.parseDouble(strtemp1[5]);
             }
         }
         final long now = System.currentTimeMillis();
@@ -295,9 +312,11 @@ public class PointMainActivity extends SerialPortActivity {
                 TextView g1 = findViewById(R.id.gps1);
                 TextView g2 = findViewById(R.id.gps2);
                 TextView g3 = findViewById(R.id.gps3);
+                TextView g4 = findViewById(R.id.gps4);
                 g1.setText("经度:" + gpsInfo.longitude);
                 g2.setText("纬度:" + gpsInfo.latitude);
                 g3.setText("GGA状态:" + gpsInfo.ggaType);
+                g4.setText("速度:" + gpsInfo.speed + "km/h");
 
 
             }

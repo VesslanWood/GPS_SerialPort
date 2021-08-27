@@ -1,5 +1,6 @@
 package android_serialport_api.utils;
 
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -317,6 +318,10 @@ public class ByteConvert {
             num |= (byteNum[ix] & 0xff);
         }
         return num;
+    }
+
+    public static byte[] long2ByteArray(long value) {
+        return ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(value).array();
     }
 
 

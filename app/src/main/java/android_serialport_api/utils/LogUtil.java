@@ -14,7 +14,7 @@ import java.util.Date;
  * Created by 张洪兴 on 2018/12/3 0003.
  */
 
-public class wwcutils {
+public class LogUtil {
     private static SimpleDateFormat myLogSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");// 日志的输出格式
     private static SimpleDateFormat logfile = new SimpleDateFormat("yyyy-MM-dd HH");// 日志文件格式
     private static String MYLOGFILEName = "Log.txt";
